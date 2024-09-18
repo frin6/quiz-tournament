@@ -1,33 +1,81 @@
 document.addEventListener('DOMContentLoaded', function() {
-    // Funzione per aggiornare i risultati
-    function aggiornaRisultati(gruppo, risultati) {
-        document.querySelector(`#${gruppo} .results-content`).innerHTML = risultati;
+    const squadreGruppoA = ['Squadra 1', 'Squadra 2', 'Squadra 3', 'Squadra 4'];
+
+    function generaPartite(squadre) {
+        const partite = [];
+        for (let i = 0; i < squadre.length; i++) {
+            for (let j = i + 1; j < squadre.length; j++) {
+                partite.push(`${squadre[i]} vs ${squadre[j]}`);
+            }
+        }
+        return partite;
     }
 
-    // Funzione per aggiornare la classifica
-    function aggiornaClassifica(gruppo, classifica) {
-        document.querySelector(`#${gruppo} .ranking-content`).innerHTML = classifica;
+    function aggiornaRisultati(gruppo, partite) {
+        const contenuto = partite.map(partita => `<li>${partita}: <span class="risultato">0-0</span></li>`).join('');
+        document.querySelector(`#${gruppo} .results-content`).innerHTML = `<ul>${contenuto}</ul>`;
     }
 
-    // Esempi di dati dinamici per i risultati e la classifica
-    const risultatiGruppoA = '<ul><li>Squadra 1: 10 punti</li><li>Squadra 2: 8 punti</li><li>Squadra 3: 6 punti</li><li>Squadra 4: 4 punti</li></ul>';
-    const risultatiGruppoB = '<ul><li>Squadra 5: 12 punti</li><li>Squadra 6: 9 punti</li><li>Squadra 7: 7 punti</li><li>Squadra 8: 5 punti</li></ul>';
-    const risultatiGruppoC = '<ul><li>Squadra 9: 11 punti</li><li>Squadra 10: 8 punti</li><li>Squadra 11: 7 punti</li><li>Squadra 12: 6 punti</li></ul>';
-    const risultatiGruppoD = '<ul><li>Squadra 13: 15 punti</li><li>Squadra 14: 10 punti</li><li>Squadra 15: 7 punti</li><li>Squadra 16: 5 punti</li></ul>';
+    function calcolaClassifica(partite) {
+        const punteggi = squadreGruppoA.reduce((acc, squadra) => {
+            acc[squadra] = { punti: 0, gol: 0, subiti: 0 };
+            return acc;
+        }, {});
 
-    const classificaGruppoA = '<ul><li>Squadra 1 - 25 punti</li><li>Squadra 2 - 20 punti</li></ul>';
-    const classificaGruppoB = '<ul><li>Squadra 5 - 30 punti</li><li>Squadra 6 - 22 punti</li></ul>';
-    const classificaGruppoC = '<ul><li>Squadra 9 - 28 punti</li><li>Squadra 10 - 24 punti</li></ul>';
-    const classificaGruppoD = '<ul><li>Squadra 13 - 35 punti</li><li>Squadra 14 - 28 punti</li></ul>';
+        partite.forEach(partita => {
+            const [squadra1, squadra2] = partita.match(/(.*) vs (.*)/).slice(1);
+            const risultato = partita.match(/(\d+)-(\d+)/);
+            if (risultato) {
+                const gol1 = parseInt(risultato[1]);
+                const gol2 = parseInt(risultato[2]);
 
-    // Chiamata delle funzioni per aggiornare i dati
-    aggiornaRisultati('group-a-results', risultatiGruppoA);
-    aggiornaRisultati('group-b-results', risultatiGruppoB);
-    aggiornaRisultati('group-c-results', risultatiGruppoC);
-    aggiornaRisultati('group-d-results', risultatiGruppoD);
+                punteggi[squadra1].gol += gol1;
+                punteggi[squadra1].subiti += gol2;
+                punteggi[squadra2].gol += gol2;
+                punteggi[squadra2].subiti += gol1;
 
-    aggiornaClassifica('group-a-ranking', classificaGruppoA);
-    aggiornaClassifica('group-b-ranking', classificaGruppoB);
-    aggiornaClassifica('group-c-ranking', classificaGruppoC);
-    aggiornaClassifica('group-d-ranking', classificaGruppoD);
+                if (gol1 > gol2) {
+                    punteggi[squadra1].punti += 3;
+                } else if (gol1 < gol2) {
+                    punteggi[squadra2].punti += 3;
+                } else {
+                    punteggi[squadra1].punti += 1;
+                    punteggi[squadra2].punti += 1;
+                }
+            }
+        });
+
+        const classifica = Object.entries(punteggi)
+            .sort(([, a], [, b]) => b.punti - a.punti || b.gol - a.gol)
+            .map(([squadra, dati]) => `<li>${squadra} - ${dati.punti} punti</li>`)
+            .join('');
+
+        return `<ul>${classifica}</ul>`;
+    }
+
+    // Esempio di dati dinamici per i risultati e la classifica
+    const partiteGruppoA = generaPartite(squadreGruppoA);
+    aggiornaRisultati('group-a-results', partiteGruppoA);
+
+    // Esempio di risultati (da aggiornare in base ai dati reali)
+    const risultatiGruppoA = [
+        'Squadra 1 vs Squadra 2: 1-0',
+        'Squadra 3 vs Squadra 4: 2-2',
+        'Squadra 1 vs Squadra 3: 0-1',
+        'Squadra 2 vs Squadra 4: 3-1',
+        'Squadra 1 vs Squadra 4: 2-1',
+        'Squadra 2 vs Squadra 3: 1-1'
+    ];
+    // Aggiungi i risultati alle partite
+    const partiteConRisultati = partiteGruppoA.map(partita => {
+        const risultato = risultatiGruppoA.find(r => r.startsWith(partita));
+        return risultato ? risultato : `${partita}: 0-0`;
+    });
+
+    // Calcola e aggiorna la classifica
+    const classificaGruppoA = calcolaClassifica(risultatiGruppoA);
+    document.querySelector('#group-a-ranking .ranking-content').innerHTML = classificaGruppoA;
+
+    // Mostra i risultati aggiornati
+    aggiornaRisultati('group-a-results', partiteConRisultati);
 });
