@@ -19,8 +19,8 @@ document.addEventListener('DOMContentLoaded', function() {
         document.querySelector(`#${gruppo} .results-content`).innerHTML = `<ul>${contenuto}</ul>`;
     }
 
-    function calcolaClassifica(partite) {
-        const punteggi = squadreGruppoA.reduce((acc, squadra) => {
+    function calcolaClassifica(squadre, partite) {
+        const punteggi = squadre.reduce((acc, squadra) => {
             acc[squadra] = { punti: 0, gol: 0, subiti: 0 };
             return acc;
         }, {});
@@ -65,7 +65,8 @@ document.addEventListener('DOMContentLoaded', function() {
             return risultato ? risultato : `${partita}: 0-0`;
         });
 
-        const classifica = calcolaClassifica(risultati);
+        // Calcola e aggiorna la classifica per il gruppo specifico
+        const classifica = calcolaClassifica(squadre, partiteConRisultati);
         document.querySelector(`#${gruppo}-ranking .ranking-content`).innerHTML = classifica;
 
         aggiornaRisultati(`${gruppo}-results`, partiteConRisultati);
