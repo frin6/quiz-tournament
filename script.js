@@ -1,5 +1,8 @@
 document.addEventListener('DOMContentLoaded', function() {
     const squadreGruppoA = ['Squadra 1', 'Squadra 2', 'Squadra 3', 'Squadra 4'];
+    const squadreGruppoB = ['Squadra 5', 'Squadra 6', 'Squadra 7', 'Squadra 8'];
+    const squadreGruppoC = ['Squadra 9', 'Squadra 10', 'Squadra 11', 'Squadra 12'];
+    const squadreGruppoD = ['Squadra 13', 'Squadra 14', 'Squadra 15', 'Squadra 16'];
 
     function generaPartite(squadre) {
         const partite = [];
@@ -53,11 +56,22 @@ document.addEventListener('DOMContentLoaded', function() {
         return `<ul>${classifica}</ul>`;
     }
 
-    // Esempio di dati dinamici per i risultati e la classifica
-    const partiteGruppoA = generaPartite(squadreGruppoA);
-    aggiornaRisultati('group-a-results', partiteGruppoA);
+    function aggiornaTutto(gruppo, squadre, risultati) {
+        const partite = generaPartite(squadre);
+        aggiornaRisultati(`${gruppo}-results`, partite);
 
-    // Esempio di risultati (da aggiornare in base ai dati reali)
+        const partiteConRisultati = partite.map(partita => {
+            const risultato = risultati.find(r => r.startsWith(partita));
+            return risultato ? risultato : `${partita}: 0-0`;
+        });
+
+        const classifica = calcolaClassifica(risultati);
+        document.querySelector(`#${gruppo}-ranking .ranking-content`).innerHTML = classifica;
+
+        aggiornaRisultati(`${gruppo}-results`, partiteConRisultati);
+    }
+
+    // Esempi di dati per i risultati e la classifica
     const risultatiGruppoA = [
         'Squadra 1 vs Squadra 2: 1-0',
         'Squadra 3 vs Squadra 4: 2-2',
@@ -66,16 +80,33 @@ document.addEventListener('DOMContentLoaded', function() {
         'Squadra 1 vs Squadra 4: 2-1',
         'Squadra 2 vs Squadra 3: 1-1'
     ];
-    // Aggiungi i risultati alle partite
-    const partiteConRisultati = partiteGruppoA.map(partita => {
-        const risultato = risultatiGruppoA.find(r => r.startsWith(partita));
-        return risultato ? risultato : `${partita}: 0-0`;
-    });
+    const risultatiGruppoB = [
+        'Squadra 5 vs Squadra 6: 2-2',
+        'Squadra 7 vs Squadra 8: 1-0',
+        'Squadra 5 vs Squadra 7: 1-3',
+        'Squadra 6 vs Squadra 8: 0-1',
+        'Squadra 5 vs Squadra 8: 2-1',
+        'Squadra 6 vs Squadra 7: 0-2'
+    ];
+    const risultatiGruppoC = [
+        'Squadra 9 vs Squadra 10: 2-2',
+        'Squadra 11 vs Squadra 12: 1-0',
+        'Squadra 9 vs Squadra 11: 1-3',
+        'Squadra 10 vs Squadra 12: 0-1',
+        'Squadra 9 vs Squadra 12: 2-1',
+        'Squadra 10 vs Squadra 11: 0-2'
+    ];
+    const risultatiGruppoD = [     
+        'Squadra 13 vs Squadra 14: 2-2',
+        'Squadra 15 vs Squadra 16: 1-0',
+        'Squadra 13 vs Squadra 15: 1-3',
+        'Squadra 14 vs Squadra 16: 0-1',
+        'Squadra 13 vs Squadra 16: 2-1',
+        'Squadra 14 vs Squadra 15: 0-2'
+    ];
 
-    // Calcola e aggiorna la classifica
-    const classificaGruppoA = calcolaClassifica(risultatiGruppoA);
-    document.querySelector('#group-a-ranking .ranking-content').innerHTML = classificaGruppoA;
-
-    // Mostra i risultati aggiornati
-    aggiornaRisultati('group-a-results', partiteConRisultati);
+    aggiornaTutto('group-a', squadreGruppoA, risultatiGruppoA);
+    aggiornaTutto('group-b', squadreGruppoB, risultatiGruppoB);
+    aggiornaTutto('group-c', squadreGruppoC, risultatiGruppoC);
+    aggiornaTutto('group-d', squadreGruppoD, risultatiGruppoD);
 });
